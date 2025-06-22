@@ -137,7 +137,7 @@ Let:
 
 - \( D = \{d_1, d_2, \dots, d_n\} \): the input dataset  
 - \( \text{map}: D \to \bigcup_{k \in K} \{(k, v)\} \): transforms each data item into key-value pairs  
-- \( \text{group}: \{(k, v)\} \to \{(k, [v_1, v_2, \dots])\} \): groups values by key  
+- \( \text{group}: \{(k, v)\} \to \{(k, [v_1, v_2, \dots])\} \): groups values by key
 - \( \text{reduce}: (k, [v_1, \dots, v_m]) \to (k, v') \): reduces a list of values per key to a single output  
 
 Then the entire **MapReduce** process can be written as:
@@ -208,3 +208,4 @@ Any tasks the worker was doing (map or reduce) also return to idle and get resch
 ### Master Failure
 
 The master will write periodic checkpoints of the data structures it contains. This is so if the master task dies, a new copy can be started from the last checkpointed state.
+

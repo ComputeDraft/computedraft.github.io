@@ -1,9 +1,28 @@
 /* Stop page from overflowing due to custom components */
 article {
     overflow-x: auto;
+    word-break: break-word;
 }
+
 
 /* Make long mathjax equations scrollable on overflow */
 mjx-container {
     overflow-x: auto;
+    overflow-y: hidden;
+}
+
+/* Ensure inline MathJax equations scroll when too long */
+mjx-container[jax="CHTML"][display="false"] {
+  display: inline-block !important;
+  max-width: 100% !important;
+  overflow-x: auto !important;
+  white-space: nowrap !important;
+  vertical-align: middle !important;
+}
+
+/* Allow parent blocks like <p> to scroll horizontally if needed */
+p, li, td, dd {
+  overflow-x: auto;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
