@@ -1,0 +1,35 @@
+############################
+## CHANGE THESE
+############################
+
+baseURL: 'https://computedraft.github.io/'
+title: ComputeDraft
+canonifyURLs: false
+relativeURLs: true
+
+############################
+## MISC
+############################
+
+enableEmoji: true
+disableKinds: ["taxonomy", "term"]
+languageCode: "en-us"
+enableRobotsTXT: true
+
+
+markup:
+  goldmark:
+    extensions:
+      passthrough:
+        delimiters:
+          block:
+          - - \[
+            - \]
+          - - $$
+            - $$
+          inline:
+          - - \(  
+            - \)
+        enable: true
+params:
+  math: true

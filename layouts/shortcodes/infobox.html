@@ -1,0 +1,157 @@
+{{ $type := .Get "type" | default "info" }}
+
+<div class="infobox {{ $type }}">
+
+
+    {{/* Title with Dynamic Icon */}}
+    {{ if .Get "title" }}
+    <strong class="infobox-title">
+        <!-- Dynamic Icon based on Type -->
+        {{ if eq $type "info" }}
+        <i class="fa-solid fa-code"></i>
+        {{ else if eq $type "tip" }}
+        <i class="fa-solid fa-gear"></i>
+        {{ else if eq $type "warning" }}
+        <i class="fa-solid fa-code-compare"></i>
+        {{ else if eq $type "danger" }}
+        <i class="fa-solid fa-terminal"></i>
+        {{ else if eq $type "definition"}}
+        <i class="fa-solid fa-file-code"></i>
+        {{ else if eq $type "system"}}
+        <i class="fa-solid fa-microchip"></i>
+        {{ else if eq $type "logic"}}
+        <i class="fa-solid fa-square-binary"></i>
+        {{ else }}
+        <i class="fas fa-info-circle"></i>
+        {{ end }}
+        {{ .Get "title" }}
+    </strong><br>
+    {{ end }}
+
+    {{/* Content */}}
+    {{ .Inner | markdownify }}
+</div>
+
+<head>
+    <script src="https://kit.fontawesome.com/4bb023b362.js" crossorigin="anonymous"></script>
+</head>
+<style type="text/css">
+    .infobox-title {
+        color: #ffffff;
+    }
+
+    .dark .infobox-title {
+        color: #0f172a;
+    }
+
+    .infobox {
+        border-left: 8px solid #007acc;
+        background: #f3f9ff;
+        /* color: #333; */
+        padding: 1em;
+        margin: 1em 0;
+        border-radius: 6px;
+    }
+
+    .infobox.info {
+        border-left-color: #007acc;
+        background: #0d1b2a;
+        color: #007acc;
+    }
+
+    .infobox.tip {
+        border-left-color: #2ecc71;
+        background: #102a19;
+        color: #2ecc71;
+    }
+
+    .infobox.warning {
+        border-left-color: #f39c12;
+        background: #2c1e07;
+        color: #f39c12;
+    }
+
+    .infobox.danger {
+        border-left-color: #e74c3c;
+        background: #2b0f0f;
+        color: #e74c3c;
+    }
+
+    .infobox.definition {
+        border-left-color: #7f8c8d;
+        background: #1e1e1e;
+        color: #7f8c8d;
+    }
+
+    .infobox.system {
+        border-left-color: #9b59b6;
+        background: #1b1022;
+        color: #9b59b6;
+    }
+
+    .infobox.logic {
+        border-left-color: #1abc9c;
+        background: #082d2a;
+        color: #1abc9c;
+    }
+
+    /* 🔄 DARK MODE — using .dark class instead of prefers-color-scheme */
+    .dark .infobox {
+        background: #f3f9ff;
+        color: #007acc;
+    }
+
+    .dark .infobox.info {
+        border-left-color: #007acc;
+        background: #f3f9ff;
+        color: #007acc;
+    }
+
+    .dark .infobox.tip {
+        border-left-color: #2ecc71;
+        background: #f0fff4;
+        color: #2ecc71;
+    }
+
+    .dark .infobox.warning {
+        border-left-color: #f39c12;
+        background: #fff8e1;
+        color: #f39c12;
+    }
+
+    .dark .infobox.danger {
+        border-left-color: #e74c3c;
+        background: #fff5f5;
+        color: #e74c3c;
+    }
+
+    .dark .infobox.definition {
+        border-left-color: #7f8c8d;
+        background: #f7f9f9;
+        color: #7f8c8d;
+    }
+
+    .dark .infobox.system {
+        border-left-color: #9b59b6;
+        background: #f9f3fc;
+        color: #9b59b6;
+    }
+
+    .dark .infobox.logic {
+        border-left-color: #1abc9c;
+        background: #e6fffb;
+        color: #1abc9c;
+    }
+
+    /* Title with Icon */
+    .infobox-title {
+        display: flex;
+        align-items: center;
+        font-weight: 700;
+    }
+
+    .infobox-title i {
+        margin-right: 8px;
+        font-size: 1.2em;
+    }
+</style>

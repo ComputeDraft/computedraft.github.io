@@ -1,0 +1,95 @@
+<div id="quote-box"
+    class="p-6 text-lg italic border-2 rounded-xl bg-gray-100 border-gray-400 text-gray-800 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200 max-w-lg mx-auto shadow-lg flex flex-col items-center justify-center transition-all duration-500 min-h-[180px]">
+    <p id="quote-text" class="text-center text-xl font-semibold opacity-0 transition-opacity duration-500"></p>
+    <p id="quote-author"
+        class="text-right mt-4 text-sm font-medium text-gray-600 dark:text-gray-400 opacity-0 transition-opacity duration-500">
+    </p>
+</div>
+
+<script>
+    const quotes = [
+        {
+            quote: "Low-level learning, high level insight.",
+            author: "ComputeDraft",
+            title: "CEO of ?"
+        }
+    ]
+    // const quotes = [
+    //     {
+    //         quote: "I don’t ever want to be the richest person in the world. I just want to be the coolest.",
+    //         author: "Elon Musk",
+    //         title: "CEO of Tesla"
+    //     },
+    //     {
+    //         quote: "I would like to die on Mars. Just not on impact.",
+    //         author: "Elon Musk",
+    //         title: "CEO of SpaceX"
+    //     },
+    //     {
+    //         quote: "I would love to have a fight with Jeff Bezos. It’s going to be epic.",
+    //         author: "Elon Musk",
+    //         title: "CEO of SpaceX"
+    //     },
+    //     {
+    //         quote: "I’m not a robot. I’m a human.",
+    //         author: "Mark Zuckerberg",
+    //         title: "CEO of Meta"
+    //     },
+    //     {
+    //         quote: "I could be 100% wrong. But my opinions are still good!",
+    //         author: "Jeff Bezos",
+    //         title: "Founder of Amazon"
+    //     },
+    //     {
+    //         quote: "I don't want to be a billionaire. I want to be a trillionaire!",
+    //         author: "Travis Kalanick",
+    //         title: "Former CEO of Uber"
+    //     },
+    //     {
+    //         quote: "I wish you ample doses of pain and suffering.",
+    //         author: "Jensen Huang",
+    //         title: "CEO of NVIDIA"
+    //     },
+    //     {
+    //         quote: "I hope suffering happens to you.",
+    //         author: "Jensen Huang",
+    //         title: "CEO of NVIDIA"
+    //     },
+    //     {
+    //         quote: "I'm just a nerd who is in charge of a tech company.",
+    //         author: "Satya Nadella",
+    //         title: "CEO of Microsoft"
+    //     }
+    // ];
+
+    function getRandomQuote() {
+        return quotes[Math.floor(Math.random() * quotes.length)];
+    }
+
+    function updateQuote() {
+        const quoteBox = document.getElementById("quote-box");
+        const quoteText = document.getElementById("quote-text");
+        const quoteAuthor = document.getElementById("quote-author");
+
+        const newQuote = getRandomQuote();
+
+        // Fade out
+        quoteText.style.opacity = 0;
+        quoteAuthor.style.opacity = 0;
+
+        setTimeout(() => {
+            quoteText.textContent = `"${newQuote.quote}"`;
+            quoteAuthor.textContent = `— ${newQuote.author}, ${newQuote.title}`;
+
+            // Smooth height transition
+            quoteBox.style.minHeight = "0px"; // Allow it to shrink
+            quoteBox.style.height = "auto";
+
+            // Fade in
+            quoteText.style.opacity = 1;
+            quoteAuthor.style.opacity = 1;
+        }, 300);
+    }
+
+    document.addEventListener("DOMContentLoaded", updateQuote);
+</script>

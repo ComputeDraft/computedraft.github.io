@@ -1,0 +1,9 @@
+/* Stop page from overflowing due to custom components */
+article {
+    overflow-x: auto;
+}
+
+/* Make long mathjax equations scrollable on overflow */
+mjx-container {
+    overflow-x: auto;
+}
