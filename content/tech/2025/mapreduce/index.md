@@ -17,7 +17,7 @@ It provides an abstraction layer, so the user can define the simple operation th
 The creators realised that a lot of the computations they do can be broken into two main tasks, applying a map operation to each logical record in the input to compute a set of intermediate **key/value pairs**, then applying a reduce operation to all the values that share the same key, in order to combine the data appropriately. 
 
 {{< infobox type="info" title="Functional Programming Roots" >}}
-The \(\text{map}\) and \(\text{reduce}\) operations originate from **functional programming** languages like Lisp and Haskell. These paradigms emphasize **immutability** and **pure functions**, which are ideal for parallelism and distributed computation.
+The {{< scrollmath >}}\(\text{map}\){{< /scrollmath >}} and {{< scrollmath >}}\(\text{reduce}\){{< /scrollmath >}} operations originate from **functional programming** languages like Lisp and Haskell. These paradigms emphasize **immutability** and **pure functions**, which are ideal for parallelism and distributed computation.
 
 In functional terms:
 
@@ -45,8 +45,8 @@ $$
 
 Where:
 
-- \(k_1\) and \(v_1\) are the input key and value,
-- The output is a **multiset** (or list) of zero or more  \((k_2,v_2)\) pairs.
+- {{< scrollmath >}}\(k_1\){{< /scrollmath >}} and {{< scrollmath >}}\(v_1\){{< /scrollmath >}} are the input key and value,
+- The output is a **multiset** (or list) of zero or more  {{< scrollmath >}}\((k_2,v_2)\){{< /scrollmath >}} pairs.
 
 This is a homomorphic transformation over an input set.
 
@@ -57,26 +57,26 @@ A **homomorphic transformation** maintains the structure of operations - it ensu
 
 Mathematically:
 
-Let \(f\) be a homomorphic transformation from one algebraic structure \((A, \cdot)\) to another \((B, *)\), i.e: 
+Let {{< scrollmath >}}\(f\){{< /scrollmath >}} be a homomorphic transformation from one algebraic structure {{< scrollmath >}}\((A, \cdot)\){{< /scrollmath >}} to another {{< scrollmath >}}\((B, *)\){{< /scrollmath >}}, i.e: 
 
 $$
 f: A \to B
 $$
 
-Then, for all \(a_1, a_2 \in A\):
+Then, for all {{< scrollmath >}}\(a_1, a_2 \in A\){{< /scrollmath >}}:
 
 $$
 f(a_1 \cdot a_2) = f(a_1) * f(a_2)
 $$
 
-This means: applying the operation \(\cdot\) in \(A\), then transforming with \(f\) yields the same result as first transforming each element and then applying the operation \(*\) in \(B\).
+This means: applying the operation {{< scrollmath >}}\(\cdot\){{< /scrollmath >}} in {{< scrollmath >}}\(A\){{< /scrollmath >}}, then transforming with {{< scrollmath >}}\(f\){{< /scrollmath >}} yields the same result as first transforming each element and then applying the operation {{< scrollmath >}}\(*\){{< /scrollmath >}} in {{< scrollmath >}}\(B\){{< /scrollmath >}}.
 {{< /infobox >}}
 
 
 
 ### Map Function as a Homomorphic Transformation
 
-Let \(f: A \to K \times V\) be a transformation function applied to elements of a set \(A\), producing key-value pairs in the set \(K \times V\), where \(K\) is the set of keys and \(V\) is the set of values.
+Let {{< scrollmath >}}\(f: A \to K \times V\){{< /scrollmath >}} be a transformation function applied to elements of a set {{< scrollmath >}}\(A\){{< /scrollmath >}}, producing key-value pairs in the set {{< scrollmath >}}\(K \times V\){{< /scrollmath >}}, where {{< scrollmath >}}\(K\){{< /scrollmath >}} is the set of keys and {{< scrollmath >}}\(V\){{< /scrollmath >}} is the set of values.
 
 The **Map function** in MapReduce can be expressed as:
 
@@ -90,7 +90,7 @@ $$
 \text{map}(f)(x_1 \cup x_2) = \text{map}(f)(x_1) \cup \text{map}(f)(x_2)
 $$
 
-Where \(\cup\) denotes the concatenation (or combination) operation of key-value pairs. This means that applying the Map function **after** combining elements is equivalent to applying it **individually** to each element and then combining the results.
+Where {{< scrollmath >}}\(\cup\){{< /scrollmath >}} denotes the concatenation (or combination) operation of key-value pairs. This means that applying the Map function **after** combining elements is equivalent to applying it **individually** to each element and then combining the results.
 
 In other words, the Map function preserves the structure of the input data by respecting the combination operation. It can be described as:
 
@@ -104,41 +104,41 @@ Thus, the Map function is **homomorphic** as it maintains the algebraic structur
 
 Given that the Map function outputs a set of key-value pairs, the **Reduce function** operates on the grouped key-value pairs.
 
-- Let \(K\) be the set of keys produced by the Map function.
-- Let \(V\) be the set of values associated with each key \(k \in K\).
+- Let {{< scrollmath >}}\(K\){{< /scrollmath >}} be the set of keys produced by the Map function.
+- Let {{< scrollmath >}}\(V\){{< /scrollmath >}} be the set of values associated with each key {{< scrollmath >}}\(k \in K\){{< /scrollmath >}}.
 
-The Reduce function then aggregates or combines the values associated with each key. For each key \(k\), the Reduce function \(\text{reduce}\) produces a new value \(v_{\text{final}}\), typically by applying an associative and commutative operation \(\oplus\) (such as sum, average, or max):
+The Reduce function then aggregates or combines the values associated with each key. For each key {{< scrollmath >}}\(k\){{< /scrollmath >}}, the Reduce function {{< scrollmath >}}\(\text{reduce}\){{< /scrollmath >}} produces a new value {{< scrollmath >}}\(v_{\text{final}}\){{< /scrollmath >}}, typically by applying an associative and commutative operation {{< scrollmath >}}\(\oplus\){{< /scrollmath >}} (such as sum, average, or max):
 
 $$
 \text{reduce}(k, \{v_1, v_2, \ldots, v_n\}) = v_{\text{final}}
 $$
 
-Here, \(\{v_1, v_2, \ldots, v_n\}\) are the values associated with key \(k\).
+Here, {{< scrollmath >}}\(\{v_1, v_2, \ldots, v_n\}\){{< /scrollmath >}} are the values associated with key {{< scrollmath >}}\(k\){{< /scrollmath >}}.
 
 ### **Mathematical Properties of the Reduce Function:**
 
 The Reduce function is typically defined in terms of an **associative** and **commutative** operation. This means that the operation can be applied in any order or grouping without changing the result.
 
-For a given key \(k\), the Reduce function satisfies:
+For a given key {{< scrollmath >}}\(k\){{< /scrollmath >}}, the Reduce function satisfies:
 
-1. **Commutativity**: \(v_1 \oplus v_2 = v_2 \oplus v_1\)
+1. **Commutativity**: {{< scrollmath >}}\(v_1 \oplus v_2 = v_2 \oplus v_1\){{< /scrollmath >}}
 
     - The order of combining values doesn’t affect the result.
 
-2. **Associativity**: \((v_1 \oplus v_2) \oplus v_3 = v_1 \oplus (v_2 \oplus v_3)\)
+2. **Associativity**: {{< scrollmath >}}\((v_1 \oplus v_2) \oplus v_3 = v_1 \oplus (v_2 \oplus v_3)\){{< /scrollmath >}}
 
     - The grouping of the values doesn’t change the result.
 
-Thus, the Reduce function preserves the properties of the operation \(\oplus\) when aggregating the values for each key.
+Thus, the Reduce function preserves the properties of the operation {{< scrollmath >}}\(\oplus\){{< /scrollmath >}} when aggregating the values for each key.
 
 ## Overall MapReduce Function
 
 Let:
 
-- \( D = \{d_1, d_2, \dots, d_n\} \): the input dataset  
-- \( \text{map}: D \to \bigcup_{k \in K} \{(k, v)\} \): transforms each data item into key-value pairs  
-- \( \text{group}: \{(k, v)\} \to \{(k, [v_1, v_2, \dots])\} \): groups values by key
-- \( \text{reduce}: (k, [v_1, \dots, v_m]) \to (k, v') \): reduces a list of values per key to a single output  
+- {{< scrollmath >}}\( D = \{d_1, d_2, \dots, d_n\} \){{< /scrollmath >}}: the input dataset  
+- {{< scrollmath >}}\( \text{map}: D \to \bigcup_{k \in K} \{(k, v)\} \){{< /scrollmath >}}: transforms each data item into key-value pairs  
+- {{< scrollmath >}}\( \text{group}: \{(k, v)\} \to \{(k, [v_1, v_2, \dots])\} \){{< /scrollmath >}}: groups values by key
+- {{< scrollmath >}}\( \text{reduce}: (k, [v_1, \dots, v_m]) \to (k, v') \){{< /scrollmath >}}: reduces a list of values per key to a single output  
 
 Then the entire **MapReduce** process can be written as:
 
@@ -148,7 +148,7 @@ Then the entire **MapReduce** process can be written as:
 
 
 ### Intuition
-1. Apply `map` to every element in \( D \), producing key-value pairs  
+1. Apply `map` to every element in {{< scrollmath >}}\( D \){{< /scrollmath >}}, producing key-value pairs  
 2. Group the values by key  
 3. Apply `reduce` to each grouped set
 
@@ -181,19 +181,19 @@ The map function returns each word plus its associated count, this would be just
 As this was designed by Google, the execution model followed good practices to ensure fault-tolerance on their large infrastructure .
 {{< figArray subfolder="architecture" figCaption="The architecture of MapReduce on Google's infrastructure. Source: Google" >}}
 
-1. The MapReduce library in the user program splits the input files into \(M\) pieces. Then it starts up many copies of the program on a cluster of machines.
-2. One of the copies of the program is special - the master. The rest are workers that are assigned work by the master. There are \(M\) map tasks and \(R\) reduce tasks to assign. The master picks idle workers and assigns each one a map or a reduce task.
+1. The MapReduce library in the user program splits the input files into {{< scrollmath >}}\(M\){{< /scrollmath >}} pieces. Then it starts up many copies of the program on a cluster of machines.
+2. One of the copies of the program is special - the master. The rest are workers that are assigned work by the master. There are {{< scrollmath >}}\(M\){{< /scrollmath >}} map tasks and {{< scrollmath >}}\(R\){{< /scrollmath >}} reduce tasks to assign. The master picks idle workers and assigns each one a map or a reduce task.
 3. A worker who is assigned a map task reads the contents of the corresponding input split. It parses the key value pairs out of the input data and to the user-defined Map function. The results are buffered in memory.
-4. Periodically, the buffered pairs are written to local disk, partitioned into \(R\) regions by a partitioning function. The locations of the buffered pairs are passed back to the master, who forwards these locations to the reduce workers.
+4. Periodically, the buffered pairs are written to local disk, partitioned into {{< scrollmath >}}\(R\){{< /scrollmath >}} regions by a partitioning function. The locations of the buffered pairs are passed back to the master, who forwards these locations to the reduce workers.
 5. When a reduce worker is notified about these locations, it uses remote procedure calls to read the buffered data from the local disks of the map workers. When it has read all the intermediate data, it sorts it by the keys so that all occurances of the same key are grouped together. Sorting is needed because typically many different keys map to the same reduce task. If the amount of intermediate data is too large to fit in memory and external sort is used.
 6. The reduce worker iterates over the sorted data and for each unique key, it passes the key and the corresponding set of intermediate values to the user’s reduce function. The output is appended to a final output file for this reduce partition.
-7. When all map and reduce tasks are complete, the master wakes up the user program. At this point the `MapReduce` function call returns back to the user code. The output is then available in \(R\) output files.
+7. When all map and reduce tasks are complete, the master wakes up the user program. At this point the `MapReduce` function call returns back to the user code. The output is then available in {{< scrollmath >}}\(R\){{< /scrollmath >}} output files.
 
 ## Master Data Structures
 
 The master stores several data structures. For each map and reduce task, it stores the state (idle, in progress, completed) and the identity of the worker machine (for any tasks that have been assigned to a worker).
 
-For each completed map task, it stores the location and sizes of the \(R\) intermediate file regions produced. Updates to this location and size information are received as map tasks are completed. The information is then pushed incrementally to workers that have in-progress reduce tasks.
+For each completed map task, it stores the location and sizes of the {{< scrollmath >}}\(R\){{< /scrollmath >}} intermediate file regions produced. Updates to this location and size information are received as map tasks are completed. The information is then pushed incrementally to workers that have in-progress reduce tasks.
 
 ## Fault Tolerance
 

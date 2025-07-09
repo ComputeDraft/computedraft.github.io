@@ -21,8 +21,23 @@ mjx-container[jax="CHTML"][display="false"] {
 }
 
 /* Allow parent blocks like <p> to scroll horizontally if needed */
-p, li, td, dd {
+/* p, td, dd {
   overflow-x: auto;
   overflow-wrap: anywhere;
   word-break: break-word;
+}
+
+li {
+  overflow-x: auto;
+  white-space: normal;
+  word-break: break-word;
+  list-style-position: inside;
+} */
+
+.scroll-math {
+  display: inline-block;
+  max-width: 100%;
+  overflow-x: auto;
+  white-space: nowrap;
+  vertical-align: middle;
 }

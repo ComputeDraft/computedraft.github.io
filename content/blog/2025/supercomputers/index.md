@@ -37,8 +37,8 @@ In the context of parallelism, certain computations are particularly well-suited
 {{< infobox type="definition" title="Monoid" >}}
 A **monoid** is a set combined with an operation that satisfies two key properties:
 
-1. **Associativity**: The operation can be applied to elements in any order, such that \( (A \cdot B) \cdot C = A \cdot (B \cdot C) \).
-2. **Identity element**: There exists an element \(I\) such that for any element \(A\), \(I \cdot A = A\).
+1. **Associativity**: The operation can be applied to elements in any order, such that {{< scrollmath >}}\( (A \cdot B) \cdot C = A \cdot (B \cdot C) \){{< /scrollmath >}}.
+2. **Identity element**: There exists an element {{< scrollmath >}}\(I\){{< /scrollmath >}} such that for any element {{< scrollmath >}}\(A\){{< /scrollmath >}}, {{< scrollmath >}}\(I \cdot A = A\){{< /scrollmath >}}.
 
 {{< /infobox >}}
 
@@ -48,7 +48,7 @@ For example, the multiplication of square matrices is monoidal:
 
 $$ (A \cdot B) \cdot C = A \cdot (B \cdot C) $$
 
-This means that with four square matrices \(A\), \(B\), \(C\), and \(D\), we can multiply any two on one core (or thread) and the other two on another, and then combine the results. The identity element here would be the **identity matrix** \(I\).
+This means that with four square matrices {{< scrollmath >}}\(A\){{< /scrollmath >}}, {{< scrollmath >}}\(B\){{< /scrollmath >}}, {{< scrollmath >}}\(C\){{< /scrollmath >}}, and {{< scrollmath >}}\(D\){{< /scrollmath >}}, we can multiply any two on one core (or thread) and the other two on another, and then combine the results. The identity element here would be the **identity matrix** {{< scrollmath >}}\(I\){{< /scrollmath >}}.
 
 Although this works perfectly in theory, on hardware there might be small discrepancies due to **precision errors**. However, in practice, these errors are usually negligible and don’t significantly affect the final result.
 
@@ -121,7 +121,7 @@ With NUMA, there is a shared address space where all processors can access all m
 
 NUMA is effective for workloads that have high memory locality of reference. Ideally, a processor can operate on a subset of data that is mostly or entirely within its own cache, reducing traffic on a memory bus.
 
-{{< figArray subfolder="numa" numCols="2" >}}
+{{< figArray subfolder="numa" >}}
 
 #### CC-NUMA (Cache-Coherent)
 
@@ -150,7 +150,7 @@ Accesses to remote memory modules are only indirectly possible by messages throu
 
 The main advantage of the NORMA model is that it allows for extremely large system configurations. This scalability is possible because much of the complexity is offloaded to the programmer. Developing software for NORMA architectures requires careful management: data must be evenly partitioned across local memory modules, software caches must be kept consistent according to the desired memory model, and data identifiers must be translated between different processors' address spaces.
 
-{{< figArray subfolder="norma" numCols="2" >}}
+{{< figArray subfolder="norma" >}}
 
 #### Clusters
 

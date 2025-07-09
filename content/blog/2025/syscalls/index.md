@@ -1,23 +1,18 @@
 ---
-title: System Calls, in depth
-summary: Syscalls
-date: 2025-05-04
-cardimage: #supercomputers-card.jpg
+title: "System Calls: A Low-Level Walkthrough"
+summary: Exploring the internals of Linux system calls - from C code to CPU instructions. This post follows write() through assembly, registers, and the transition from user to kernel space.
+date: 2025-06-24
+cardimage: syscalls-card.png
 featureimage: #photo2.jpeg
-caption: #"Image caption :tada:"
-# authors:
-  # - ComputeDraft: author.png
 ---
-
-# How System Calls Work in Linux
 
 ## What Is a System Call?
 
-Every program you run, relies on the operating system to interact with the real world. The OS manages things like reading files, allocating memory and networking. User space programs can’t just access the hardware or the kernel memory directly, as this would compromise security and make debugging hard.
+Every program you run relies on the operating system to interact with the real world. The OS manages things like reading files, allocating memory and networking. User space programs can’t just access the hardware or the kernel memory directly, as this would compromise security and make debugging hard.
 
 A system call (syscall) is a mechanism for user-space programs to request services from the kernel. It crosses the boundary between user space and kernel space. Most common tasks, like reading/writing files, spawning processes, allocating memory, all rely on system calls.
 
-## Overview of How They Work
+### Overview of How They Work
 
 At a high level:
 
@@ -27,6 +22,10 @@ At a high level:
 4. The kernel looks up the requested syscall and runs the corresponding function
 5. The kernel performs the requested operation and returns a result
 6. Control returns back to the program with the result
+
+On modern x86-64 systems, the syscall is performed using the efficient syscall instruction (not a traditional interrupt), which transitions the CPU into kernel mode.
+
+{{< figArray subfolder="diagram1" figCaption="A process executing a system call" >}}
 
 ---
 
@@ -69,13 +68,16 @@ Then glibc executes the syscall instruction.
 At this point, the CPU performs a **privilege level switch**:
 - It changes from **ring 3 (user mode)** to **ring 0 (kernel mode)**
 
-{{<infobox type="info" title="Linux Privilege Rings" >}} 
+{{< figArray subfolder="diagram2" figCaption="Linux privilege rings" >}}
+
+{{<infobox type="info" title="Privilege Rings" >}} 
 
 Linux privilege levels are split into rings.
-- Ring 0 is for **kernel code** and **device drivers**
-- Rings 1 and 2 are for **privileged code (user programs with I/O access permissions**)
-- Ring 3 is for **unprivileged code** (nearly all user programs)
+- Ring 0 is for **kernel code**
+- Rings 1 and 2 are for **device drviers**
+- Ring 3 is for **user programs**
 {{</infobox>}}
+
 
 - It saves the current user-space context and jumps to a predefined kernel entry point
 
@@ -113,7 +115,7 @@ The kernel now has access to the file descriptor, buffer, and count - but it mus
 
 - Validate that the pointer `buf` points to user-space memory
 - Ensure the file descriptor is valid and writable
-- Perform the actual write (e.g., to a file or terminal)
+- Perform the actual write
 
 ### 6. Return Value Is Placed in `rax`
 
@@ -130,7 +132,7 @@ In other architectures (like ARM64), the syscall mechanism differs but the core 
 
 ---
 
-## Assembly Example
+## Directly Invoking a System Call 
 We can write a small C program with some inline assembly to see how the write system call gets executed.
 
 - Write the source code into `syscall.c`
@@ -160,7 +162,7 @@ int main() {
 - Compile the code
 
 ```c
-gcc -O0 -g -no-pie -static -o syscall syscall.c
+gcc -o syscall syscall.c
 ```
 
 - Disassemble the code
@@ -196,224 +198,15 @@ objdump -d syscall | grep -A20 '<main>:'
   4018a9:    b8 00 00 00 00         mov    $0x0,%eax            # Prepare return value for main (success)
 
 ```
-💡
 
-I tried invoking the write function itself in C, but this invokes the glib wrapper which itself will disassemble to show the syscall instruction. This is annoying as compiler optimisations, inlining, dynamic linking and the PLT (Procedure Linkage Table) can obscure the direct syscall instructions. The syscall might be hidden behind several layers of library calls and PLT trampolines, making it difficult to isolate and analyze.
+{{<infobox type="info" title="Note on Disassembly" >}} 
+Invoking the write function itself in C is harder to disassemble - compiler optimisations, inlining, dynamic linking and the PLT (Procedure Linkage Table) can obscure the direct syscall instruction. The syscall might be hidden behind several layers of library calls and PLT trampolines, making it difficult to isolate and analyse.
+{{</infobox>}}
 
+## A Note on Trap Tables
 
-## Kernel-Side Implementation
+A common misconception is that Linux system calls rely on trap tables (like the Interrupt Descriptor Table, or IDT) to function. 
 
-We’ll follow this path:
+This was true for older x86 implementations that used `int 0x80` (a software interrupt), but the syscall instruction on modern x86-64 Linux systems bypasses the traditional trap table mechanism entirely using the process explained in this post. 
 
-```
-scss
-CopyEdit
-User Space → syscall instruction → entry_SYSCALL_64 → syscall table lookup → sys_write() → vfs_write() → file_operations.write()
-```
-
-Let’s break this down step-by-step.
-
----
-
-### 1. 🔩 `syscall` → `entry_SYSCALL_64`
-
-On x86-64, system calls enter through this function in **assembly**:
-
-📄 `arch/x86/entry/entry_64.S`
-
-```
-asm
-CopyEdit
-entry_SYSCALL_64:
-    ...
-    call  do_syscall_64
-    ...
-
-```
-
----
-
-### 2. 🧠 `do_syscall_64` — Core Dispatcher
-
-📄 `arch/x86/entry/common.c`
-
-This C function dispatches the syscall:
-
-```c
-c
-CopyEdit
-asmlinkage long do_syscall_64(struct pt_regs *regs)
-
-```
-
-It:
-
-- Fetches syscall number from `rax`
-- Looks up the handler from `sys_call_table[]`
-- Invokes the correct syscall handler function (e.g., `sys_write`)
-
----
-
-### 3. 🧮 `sys_call_table` — The Master Table
-
-📄 `arch/x86/entry/syscalls/syscall_64.tbl`
-
-This table maps syscall numbers to C functions.
-
-Example entries:
-
-```
-txt
-CopyEdit
-0   common  read        sys_read
-1   common  write       sys_write
-...
-
-```
-
-So `write()` (syscall #1) maps to `sys_write`.
-
----
-
-### 4. ✍️ `sys_write` — Entry Point for Write
-
-📄 `fs/read_write.c`
-
-```c
-c
-CopyEdit
-SYSCALL_DEFINE3(write, unsigned int, fd, const char __user *, buf, size_t, count)
-{
-    struct fd f = fdget_pos(fd);
-    ...
-    ret = vfs_write(f.file, buf, count, &f.pos);
-    ...
-}
-
-```
-
-- `fdget_pos()` resolves the file descriptor to a file struct
-- `vfs_write()` is the next step — it's the virtual filesystem interface
-
----
-
-### 5. 🗃️ `vfs_write()` — Generic File Write Handler
-
-📄 `fs/read_write.c`
-
-```c
-c
-CopyEdit
-ssize_t vfs_write(struct file *file, const char __user *buf,
-                  size_t count, loff_t *pos)
-{
-    ...
-    ret = call_write_iter(fop->write_iter, kiocb, &from);
-    ...
-}
-
-```
-
-Here, the kernel looks up the file’s `struct file_operations`:
-
-```c
-c
-CopyEdit
-const struct file_operations {
-    ...
-    ssize_t (*write)(struct file *, const char __user *, size_t, loff_t *);
-};
-
-```
-
-The actual write implementation depends on the file type:
-
-- For regular files → `ext4_file_write_iter`, etc.
-- For terminals → `tty_write()`
-- For pipes → `pipe_write()`
-
-So the kernel calls whatever function is appropriate via that pointer.
-
----
-
-## 📦 Summary: Write Path in Kernel
-
-```
-text
-CopyEdit
-User space
-  └──> syscall (write)
-        └──> entry_SYSCALL_64
-              └──> do_syscall_64
-                    └──> sys_call_table[1] = sys_write
-                          └──> sys_write()
-                                └──> vfs_write()
-                                      └──> file_operations->write()
-
-```
-
-## Syscall Table and Number Mapping
-
-- Look at `/usr/include/asm/unistd_64.h` or similar
-- Show how `syscall number 1 = write`, etc.
-- Show `cat /proc/kallsyms | grep sys_`
-
-## Trap Tables
-
-> Modern Linux on x86-64 does not use a trap table or traditional interrupts for syscalls.
-> 
-> 
-> It uses a **dedicated fast path** via the `syscall` instruction, which does **not go through the IDT (Interrupt Descriptor Table)** or interrupt gates.
-> 
-
-But — earlier architectures *did* use interrupts (and ARM still can), so let’s break this down cleanly:
-
-### Historically, Yes (i386 and older x86)
-
-On 32-bit Linux (i386), system calls were invoked like this:
-
-```
-asm
-CopyEdit
-int $0x80
-
-```
-
-This was an **interrupt instruction** that triggered **interrupt vector 0x80**, which is wired in the **IDT (Interrupt Descriptor Table)** to point to the syscall handler in kernel space.
-
-- Used **INT gates**
-- Went through the general-purpose **trap handling** system
-- Was **slower** because it shared the interrupt path with real hardware IRQs, faults, etc.
-
-### Modern x86-64 Linux: `syscall` / `sysret`
-
-Starting with x86-64 and newer CPUs (Pentium II+), we got:
-
-- `syscall` / `sysret` instructions
-- Much **faster** and **purpose-built for syscalls**
-- Bypasses IDT and avoids interrupt handling overhead
-
-**Key difference:**
-
-- *No interrupt vector*
-- *No trap gate*
-- Uses **MSRs (Model-Specific Registers)** instead
-
-## How `syscall` Works Internally
-
-Instead of the IDT, the CPU uses **Model-Specific Registers** (MSRs) to determine:
-
-| MSR Name | Purpose |
-| --- | --- |
-| `IA32_LSTAR` | Pointer to kernel syscall entry |
-| `IA32_STAR` | Sets segment selectors for transition |
-| `IA32_FMASK` | Masked flags on entry |
-
-These are set by the kernel during boot. When a user program calls `syscall`, the CPU:
-
-1. Switches to **ring 0**
-2. Loads the kernel instruction pointer from `IA32_LSTAR`
-3. Switches stacks (from user to kernel stack)
-4. Jumps directly into `entry_SYSCALL_64`
-
-No IDT. No interrupt descriptor. No `int $0x80`.
+However, trap tables are still essential for other kinds of exceptions and interrupts, and they’re still used for system calls on some architectures like ARM.

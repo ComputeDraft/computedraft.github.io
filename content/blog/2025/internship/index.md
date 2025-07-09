@@ -6,8 +6,6 @@ date: 2024-11-22
 cardimage: internship-card.jpg
 featureimage: photo3.jpeg
 caption: "Image caption :tada:"
-authors:
-  - ComputeDraft: author.png
 ---
 
 _This is not a guide with generic_
